@@ -1,3 +1,0 @@
-[submodule "repo/libc-test"]
-	path = repo/libc-test
-	url = https://github.com/shzhxh/libc-test-classroom.git

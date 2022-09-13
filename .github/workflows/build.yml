@@ -1,0 +1,22 @@
+name: build images
+
+on:
+  push:
+
+jobs:
+  libc-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache toolchain
+        id: cache-toolchain
+        uses: actions/cache@v3
+        with: 
+          path: toolchain/riscv64--musl--bleeding-edge-2020.08-1
+          key: toolchain-rv64
+
+      - name: Download toolchain
+        if: steps.cache-toolchain.outputs.cache-hit != 'true'
+        run: make toolchain
+
+      - name: build images
+        run: make image
