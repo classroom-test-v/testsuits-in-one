@@ -17,7 +17,6 @@ toolchain:
 	tar -xf toolchain/$(TOOLCHAIN_TGZ) -C toolchain
 
 libc-test:
-	git submodule update --init libc-test
 	cd libc-test && make disk
 
 image: libc-test
