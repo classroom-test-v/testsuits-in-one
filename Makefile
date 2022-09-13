@@ -30,8 +30,7 @@ image: libc-test
 
 	sync && sudo umount ./tmp
 	rmdir tmp
-	mv $(ARCH).img testdata/sdcard.img
 	
 clean:
-	rm -f testdata/sdcard.img
+	rm -f $(ARCH).img
 
