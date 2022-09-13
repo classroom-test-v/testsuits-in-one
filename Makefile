@@ -5,7 +5,7 @@ ARCH ?= riscv64
 # CACHE_URL := https://github.com/YdrMaster/zCore/releases/download/musl-cache
 # TOOLCHAIN_TGZ := $(ARCH)-linux-musl-cross.tgz
 CC := $(ARCH)-buildroot-linux-musl-gcc
-OUTPUT_FOLDER=./output/
+OUTPUT_FOLDER=./build/
 CACHE_URL := https://toolchains.bootlin.com/downloads/releases/toolchains/riscv64/tarballs
 TOOLCHAIN_TGZ := $(ARCH)--musl--bleeding-edge-2020.08-1.tar.bz2
 TOOLCHAIN_URL := $(CACHE_URL)/$(TOOLCHAIN_TGZ)
@@ -45,6 +45,7 @@ image: libc-test lua busybox
 clean:
 	rm -f $(ARCH).img
 	rm -f OUTPUT_FOLDER/*
+	cd libc-test && make clean
 	cd lua && make clean
 	cd busybox && make clean
 
