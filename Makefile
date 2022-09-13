@@ -17,8 +17,8 @@ toolchain:
 	tar -xf toolchain/$(TOOLCHAIN_TGZ) -C toolchain
 
 libc-test:
-	git submodule update --init repo/libc-test
-	cd repo/libc-test && make disk
+	git submodule update --init libc-test
+	cd libc-test && make disk
 
 image: libc-test
 	sudo mkfs.fat -C -F 32 $(ARCH).img 100000
@@ -26,6 +26,7 @@ image: libc-test
 	sudo mount $(ARCH).img ./tmp
 	
 	# 将数据移入对应文件夹
+	sudo cp -r libc-test/disk/* ./tmp
 
 	sync && sudo umount ./tmp
 	rmdir tmp
