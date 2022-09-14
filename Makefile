@@ -18,7 +18,7 @@ toolchain:
 	tar -xf toolchain/$(TOOLCHAIN_TGZ) -C toolchain
 
 busybox:
-	cd busybox && make CC="$(CC)"
+	cd busybox && make CROSS_COMPILE="$(ARCH)-buildroot-linux-musl-"
 	cp busybox/busybox $(OUTPUT_FOLDER)
 	cp scripts/busybox/* $(OUTPUT_FOLDER)
 
