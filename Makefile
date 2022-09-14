@@ -5,7 +5,7 @@ ARCH ?= riscv64
 # CACHE_URL := https://github.com/YdrMaster/zCore/releases/download/musl-cache
 # TOOLCHAIN_TGZ := $(ARCH)-linux-musl-cross.tgz
 CC := $(ARCH)-buildroot-linux-musl-gcc
-OUTPUT_FOLDER=./build/
+OUTPUT_FOLDER=./build
 CACHE_URL := https://toolchains.bootlin.com/downloads/releases/toolchains/riscv64/tarballs
 TOOLCHAIN_TGZ := $(ARCH)--musl--bleeding-edge-2020.08-1.tar.bz2
 TOOLCHAIN_URL := $(CACHE_URL)/$(TOOLCHAIN_TGZ)
@@ -32,13 +32,13 @@ lua:
 	cp scripts/lua/* $(OUTPUT_FOLDER)
 
 image: libc-test lua busybox
-	sudo mkfs.fat -C -F 32 $(ARCH).img 100000
+	@rm -f $(ARCH).img
+	@dd if=/dev/zero of=$(ARCH).img count=81920 bs=512        # 40M
+	@mkfs.vfat $(ARCH).img -F 32
+
 	rm -rf tmp && mkdir tmp
 	sudo mount $(ARCH).img ./tmp
-	
-	# 将数据移入对应文件夹
-	sudo cp -r $(OUTPUT_FOLDER) ./tmp
-
+	sudo cp -r $(OUTPUT_FOLDER)/* ./tmp
 	sync && sudo umount ./tmp
 	rmdir tmp
 	
