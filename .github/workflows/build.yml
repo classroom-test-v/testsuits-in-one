@@ -21,3 +21,13 @@ jobs:
 
       - name: build images
         run: make image
+
+      - name: deloy images
+        run: |
+          mkdir public
+          cp fat32.img public/
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
