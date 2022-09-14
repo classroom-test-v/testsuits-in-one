@@ -25,7 +25,7 @@ jobs:
       - name: deloy images
         run: |
           mkdir public
-          mv riscv.img public/fat32.img
+          mv riscv64.img public/fat32.img
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
