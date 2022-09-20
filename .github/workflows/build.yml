@@ -20,12 +20,14 @@ jobs:
         run: make toolchain
 
       - name: build images
-        run: make image
+        run: |
+          make image FS=fat32
+          make image FS=sfs
 
       - name: deloy images
         run: |
           mkdir public
-          mv riscv64.img public/fat32.img
+          mv *.img public/
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

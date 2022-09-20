@@ -1,5 +1,7 @@
 ARCH ?= riscv64
+FS ?= fat32
 
+IMG_NAME := $(FS)_$(ARCH).img
 # CC := $(ARCH)-linux-musl-gcc
 # CACHE_URL := musl.cc
 # CACHE_URL := https://github.com/YdrMaster/zCore/releases/download/musl-cache
@@ -32,19 +34,28 @@ lua:
 	cp scripts/lua/* $(OUTPUT_FOLDER)
 
 image: libc-test lua busybox
-	@rm -f $(ARCH).img
-	@dd if=/dev/zero of=$(ARCH).img count=81920 bs=512        # 40M
-	@mkfs.vfat $(ARCH).img -F 32
+ifeq ($(FS),fat32)
+	mkdir $(OUTPUT_FOLDER)/bin $(OUTPUT_FOLDER)/lib
+	cp $(OUTPUT_FOLDER)/busybox $(OUTPUT_FOLDER)/bin
+	cp $(OUTPUT_FOLDER)/*so $(OUTPUT_FOLDER)/lib
+	@rm -f $(IMG_NAME)
+	@dd if=/dev/zero of=$(IMG_NAME) count=81920 bs=512        # 40M
+	@/sbin/mkfs.vfat $(IMG_NAME) -F 32
 
 	rm -rf tmp && mkdir tmp
-	sudo mount $(ARCH).img ./tmp
+	sudo mount $(IMG_NAME) ./tmp
 	sudo cp -r $(OUTPUT_FOLDER)/* ./tmp
 	sync && sudo umount ./tmp
 	rmdir tmp
+endif
+ifeq ($(FS),sfs)
+	rcore-fs-fuse $(IMG_NAME) $(OUTPUT_FOLDER) zip
+	qemu-img resize -f raw $(IMG_NAME) +5M
+endif
 	
 clean:
-	rm -f $(ARCH).img
-	rm -f OUTPUT_FOLDER/*
+	rm -f $(IMG_NAME)
+	rm -rf $(OUTPUT_FOLDER)
 	cd libc-test && make clean
 	cd lua && make clean
 	cd busybox && make clean
