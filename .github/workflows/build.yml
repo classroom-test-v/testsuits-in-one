@@ -30,6 +30,7 @@ jobs:
 
       - name: build images
         run: |
+          sudo apt update && sudo apt install qemu-utils
           make image FS=fat32
           make image FS=sfs
 
@@ -38,7 +39,6 @@ jobs:
           mkdir public
           mv *.img public/
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          folder: ./public
