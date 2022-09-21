@@ -7,6 +7,15 @@ jobs:
   libc-test:
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --git https://github.com/rcore-os/rcore-fs.git rcore-fs-fuse
+
       - uses: actions/checkout@v3
       - name: Cache toolchain
         id: cache-toolchain
