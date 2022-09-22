@@ -2,7 +2,7 @@
 
 for item in date.lua file_io.lua max_min.lua random.lua remove.lua round_num.lua sin30.lua sort.lua strings.lua
 do
-	./lua $1
+	./lua ${item}
 	if [ $? == 0 ]; then
 		echo "testcase lua $1 success"
 	else
