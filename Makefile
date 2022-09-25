@@ -33,6 +33,7 @@ lua:
 	cp scripts/lua/* $(OUTPUT_FOLDER)
 
 libtirpc-1.3.3:
+	tar -jxvf libtirpc-1.3.3.tar.bz2
 	cd libtirpc-1.3.3 && ./configure --host=riscv64-buildroot-linux-musl --prefix=/opt/riscv/sysroot/usr --disable-gssapi
 	cd libtirpc-1.3.3 && make
 
