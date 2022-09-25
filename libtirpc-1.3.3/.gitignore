@@ -5,7 +5,6 @@ compile
 config.guess
 config.log
 config.sub
-configure
 depcomp
 install-sh
 libtool
