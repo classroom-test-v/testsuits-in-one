@@ -38,7 +38,7 @@ libtirpc-1.3.3:
 	cd libtirpc-1.3.3 && make
 
 lmbench: libtirpc-1.3.3
-	cd lmbench && make build CC="riscv64-buildroot-linux-musl-gcc -static -I $(LIBTIRPC)/tirpc" -j$(nproc)
+	cd lmbench && make build LIBTIRPC="$(LIBTIRPC)/src/.libs" CC="riscv64-buildroot-linux-musl-gcc -static -I $(LIBTIRPC)/tirpc" -j$(nproc)
 	cp lmbench/bin/x86_64-pc-linux-gnu/lmbench_all $(OUTPUT_FOLDER)
 	cp scripts/lmbench/* $(OUTPUT_FOLDER)
 	mkdir $(OUTPUT_FOLDER)/var/tmp -p

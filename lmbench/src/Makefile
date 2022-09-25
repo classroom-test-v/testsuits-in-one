@@ -57,6 +57,7 @@ RESULTS=Results/$(OS)
 SAMPLES=lmbench/Results/aix/rs6000 lmbench/Results/hpux/snake \
 	lmbench/Results/irix/indigo2 lmbench/Results/linux/pentium \
 	lmbench/Results/osf1/alpha lmbench/Results/solaris/ss20* 
+LIBTIRPC := 
 
 COMPILE=$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS)
 
@@ -270,7 +271,7 @@ $(UTILS) :
 
 # 被修改过了 添加了库地址
 $O/lmbench_all: $(EXEOBJS) $O/lmbench.a lmbench_all.c
-	$(COMPILE) -o $O/lmbench_all $^ -lm -L/home/yufeng/os-libc-test/libtirpc-1.3.3/src/.libs -ltirpc
+	$(COMPILE) -o $O/lmbench_all $^ -lm -L$(LIBTIRPC) -ltirpc
 	cat lmexes.txt | xargs -n 1 -I {} ../scripts/mklink.sh {} $(abspath $O)
 
 
