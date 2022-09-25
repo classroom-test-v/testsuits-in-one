@@ -9,9 +9,10 @@ OUTPUT_FOLDER=./build
 CACHE_URL := https://toolchains.bootlin.com/downloads/releases/toolchains/riscv64/tarballs
 TOOLCHAIN_TGZ := $(ARCH)--musl--bleeding-edge-2020.08-1.tar.bz2
 TOOLCHAIN_URL := $(CACHE_URL)/$(TOOLCHAIN_TGZ)
+LIBTIRPC := $(CURDIR)/libtirpc-1.3.3
 export PATH=$(shell printenv PATH):$(CURDIR)/toolchain/$(ARCH)--musl--bleeding-edge-2020.08-1/bin
 
-.PHONY: toolchian libc-test busybox lua test clean
+.PHONY: toolchian libc-test busybox lua lmbench libtirpc-1.3.3 test clean
 
 toolchain: 
 	if [ ! -f toolchain/$(TOOLCHAIN_TGZ) ]; then wget -P toolchain $(TOOLCHAIN_URL); fi
@@ -31,7 +32,17 @@ lua:
 	cp lua/src/lua $(OUTPUT_FOLDER)
 	cp scripts/lua/* $(OUTPUT_FOLDER)
 
-image: libc-test lua busybox
+libtirpc-1.3.3:
+	cd libtirpc-1.3.3 && ./configure --host=riscv64-buildroot-linux-musl --prefix=/opt/riscv/sysroot/usr --disable-gssapi
+	cd libtirpc-1.3.3 && make
+
+lmbench: libtirpc-1.3.3
+	cd lmbench && make build CC="riscv64-buildroot-linux-musl-gcc -static -I $(LIBTIRPC)/tirpc" -j$(nproc)
+	cp lmbench/bin/x86_64-pc-linux-gnu/lmbench_all $(OUTPUT_FOLDER)
+	cp scripts/lmbench/* $(OUTPUT_FOLDER)
+	mkdir $(OUTPUT_FOLDER)/var/tmp -p
+
+image: libc-test lua busybox lmbench
 	@rm -f $(ARCH).img
 	@dd if=/dev/zero of=$(ARCH).img count=81920 bs=512        # 40M
 	@mkfs.vfat $(ARCH).img -F 32
@@ -48,4 +59,5 @@ clean:
 	cd libc-test && make clean
 	cd lua && make clean
 	cd busybox && make clean
-
+	cd libtirpc-1.3.3 && make clean
+	cd lmbench && make clean
