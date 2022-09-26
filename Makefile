@@ -1,36 +1,56 @@
 ARCH ?= riscv64
 FS ?= fat32
 
-IMG_NAME := $(FS)_$(ARCH).img
+ifeq ($(FS),fat32)
+	IMG_NAME := $(ARCH).img
+else
+	IMG_NAME := $(FS)_$(ARCH).img
+endif
 # CC := $(ARCH)-linux-musl-gcc
 # CACHE_URL := musl.cc
 # CACHE_URL := https://github.com/YdrMaster/zCore/releases/download/musl-cache
 # TOOLCHAIN_TGZ := $(ARCH)-linux-musl-cross.tgz
 CC := $(ARCH)-buildroot-linux-musl-gcc
 OUTPUT_FOLDER=./build
-CACHE_URL := https://toolchains.bootlin.com/downloads/releases/toolchains/riscv64/tarballs
-TOOLCHAIN_TGZ := $(ARCH)--musl--bleeding-edge-2020.08-1.tar.bz2
+ifeq ($(ARCH),x86_64)
+	CACHE_URL := https://toolchains.bootlin.com/downloads/releases/toolchains/x86-64/tarballs
+	TOOLCHAIN_NAME_ORG := x86-64--musl--bleeding-edge-2022.08-1
+else
+	CACHE_URL := https://toolchains.bootlin.com/downloads/releases/toolchains/$(ARCH)/tarballs
+endif
+ifeq ($(ARCH),riscv64)
+	TOOLCHAIN_NAME_ORG := $(ARCH)--musl--bleeding-edge-2020.08-1
+endif
+ifeq ($(ARCH),aarch64)
+	TOOLCHAIN_NAME_ORG := $(ARCH)--musl--bleeding-edge-2022.08-1
+endif
+TOOLCHAIN_TGZ := $(TOOLCHAIN_NAME_ORG).tar.bz2
 TOOLCHAIN_URL := $(CACHE_URL)/$(TOOLCHAIN_TGZ)
-export PATH=$(shell printenv PATH):$(CURDIR)/toolchain/$(ARCH)--musl--bleeding-edge-2020.08-1/bin
+TOOLCHAIN_NAME_TGT := $(ARCH)--musl--bleeding-edge
+export PATH=$(shell printenv PATH):$(CURDIR)/toolchain/$(TOOLCHAIN_NAME_TGT)/bin
 
-.PHONY: toolchian libc-test busybox lua test clean
+.PHONY: toolchain libc-test busybox lua test clean
 
 toolchain: 
 	if [ ! -f toolchain/$(TOOLCHAIN_TGZ) ]; then wget -P toolchain $(TOOLCHAIN_URL); fi
 	tar -xf toolchain/$(TOOLCHAIN_TGZ) -C toolchain
+	cd toolchain && mv $(TOOLCHAIN_NAME_ORG) $(TOOLCHAIN_NAME_TGT)
 
 busybox:
 	cd busybox && make CROSS_COMPILE="$(ARCH)-buildroot-linux-musl-"
-	cp busybox/busybox $(OUTPUT_FOLDER)
+	if [ ! -d $(OUTPUT_FOLDER) ]; then mkdir $(OUTPUT_FOLDER); fi
+	cp -r busybox/busybox $(OUTPUT_FOLDER)
 	cp scripts/busybox/* $(OUTPUT_FOLDER)
 
 libc-test:
-	cd libc-test && make disk
+	cd libc-test && make disk ARCH=$(ARCH)
+	if [ ! -d $(OUTPUT_FOLDER) ]; then mkdir $(OUTPUT_FOLDER); fi
 	cp -r libc-test/disk/* $(OUTPUT_FOLDER)
 
 lua:
 	cd lua && make posix CC="$(CC) -static"
-	cp lua/src/lua $(OUTPUT_FOLDER)
+	if [ ! -d $(OUTPUT_FOLDER) ]; then mkdir $(OUTPUT_FOLDER); fi
+	cp -r lua/src/lua $(OUTPUT_FOLDER)
 	cp scripts/lua/* $(OUTPUT_FOLDER)
 
 image: libc-test lua busybox
