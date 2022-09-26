@@ -4,30 +4,62 @@ on:
   push:
 
 jobs:
-  libc-test:
+  build:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        arch: [x86_64, riscv64, aarch64]
     steps:
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --git https://github.com/rcore-os/rcore-fs.git rcore-fs-fuse
+
       - uses: actions/checkout@v3
       - name: Cache toolchain
         id: cache-toolchain
         uses: actions/cache@v3
         with: 
-          path: toolchain/riscv64--musl--bleeding-edge-2020.08-1
-          key: toolchain-rv64
+          path: toolchain/${{matrix.arch}}--musl--bleeding-edge
+          key: toolchain-${{matrix.arch}}
 
       - name: Download toolchain
         if: steps.cache-toolchain.outputs.cache-hit != 'true'
-        run: make toolchain
+        run: make toolchain ARCH=${{matrix.arch}}
 
       - name: build images
-        run: make image
+        run: |
+          sudo apt update && sudo apt install qemu-utils
+          make image FS=fat32 ARCH=${{matrix.arch}}
+          make image FS=sfs ARCH=${{matrix.arch}}
 
-      - name: deloy images
+      - name: Upload images
+        uses: actions/upload-artifact@v3
+        with: 
+          name: images
+          path: |
+            sfs_${{matrix.arch}}.img
+            ${{matrix.arch}}.img
+
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download images
+        uses: actions/download-artifact@v3
+        with:
+          name: images
+      - name: generate the output dir
         run: |
           mkdir public
-          mv riscv64.img public/fat32.img
+          mv *.img public/
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          folder: ./public

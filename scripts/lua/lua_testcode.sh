@@ -1,9 +1,11 @@
-./test.sh date.lua
-./test.sh file_io.lua
-./test.sh max_min.lua
-./test.sh random.lua
-./test.sh remove.lua
-./test.sh round_num.lua
-./test.sh sin30.lua
-./test.sh sort.lua
-./test.sh strings.lua
+#!/usr/bin/busybox sh
+
+for item in date.lua file_io.lua max_min.lua random.lua remove.lua round_num.lua sin30.lua sort.lua strings.lua
+do
+	./lua ${item}
+	if [ $? == 0 ]; then
+		echo "testcase lua ${item} success"
+	else
+		echo "testcase lua ${item} fail"
+	fi
+done

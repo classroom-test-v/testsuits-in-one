@@ -1,8 +1,9 @@
-PREFIX?=riscv64-buildroot-linux-musl-
+ARCH ?= riscv64
 
+PREFIX := $(ARCH)-buildroot-linux-musl-
 CC=$(PREFIX)gcc
 OBJCOPY=$(PREFIX)objcopy
-MUSL_LIB?=$(shell dirname $(shell which $(CC)))/../riscv64-buildroot-linux-musl/sysroot/lib64
+MUSL_LIB?=$(shell dirname $(shell which $(CC)))/../$(ARCH)-buildroot-linux-musl/sysroot/lib64
 # CC=musl-gcc
 # OBJCOPY=objcopy
 

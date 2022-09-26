@@ -1,21 +1,14 @@
-目的
-- 在github classroom上可以对任意OS进行libc-test测试，报告测试成绩
-
-前提要求
-- OS代码默认在kernel目录下，建议kernel目录以子模块的形式存在
-- 在kernel目录下执行make命令要生成内核二进制文件：kernel-qemu
-- OS要支持fat32文件系统，要能读出sdcard.img里的测试程序
+作用
+- 生成测试用的镜像
 
 用法
 ```bash
-git submodule add <os_url> kernel   # 待测OS代码作为子模块
-git submodule update --init # 下载repo目录下的子模块
-make image
-pip3 install -r scripts/requirements.txt
-make test
+make image ARCH=<arch> FS=<fs-type>	# 对于sfs,生成名为<fs-type>_<arch>.img的镜像。对于fat32, 生成<arch>.img,这是为了与之前的版本兼容。
+	# <fs-type>目前只能是fat32或sfs。
+	# <arch>目前可以是riscv64，x86_64, aarch64。
 ```
 
 结果
-- 在网页 : https://<org_name>.github.io/<repo_name>/detail.html
+- CI会把生成的镜像放在分支 `gh-pages`。
 
-  注：需要先在设置里把gh-pages分支作为本仓库的Pages。
+  
